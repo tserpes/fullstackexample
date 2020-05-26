@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Fullstack example</title>
+	<script type="text/javascript" src="https://code.angularjs.org/snapshot/angular.min.js"></script>
+</head>
+<body ng-app="MyApp" ng-controller="MyCtrl">
+	<div>
+		<ul>
+			<li ng-repeat="todo in todos" ng-click="presentTodo($index)">
+				<input type="checkbox" ng-model="todo.completed">
+				{{todo.name}}
+			</li>
+		</ul>
+	</div>
+	<div>
+		<input type="text" ng-model="selectedTodo.notes">
+		<input type="checkbox" ng-model="selectedTodo.completed">
+		<input type="button" ng-click="persist(selectedTodo)" value="Update">
+	</div>
+</body>
+<script type="text/javascript">
+	angular.module('MyApp',[]).controller('MyCtrl',function($scope,$http){
+		$http({
+			method: 'GET',
+			url: '/api/todos'
+		}).then(function successCallback(response) {
+			$scope.todos = response.data;
+		}, function errorCallback(response) {
+			$scope.todos = null;
+		});
+
+		$scope.presentTodo = function(todoId){
+			$scope.selectedTodo = $scope.todos[todoId];
+		}
+
+		$scope.persist = function(todo){
+			$http({
+				method: 'POST',
+				url: '/api/todos/'+todo.id,
+				data: todo,
+				headers: {'Content-Type':'application/json'}
+			}).then(function successCallback(response) {
+				alert('Object changes in backend');
+			}, function errorCallback(response) {
+				alert('Error while updating object');
+			});
+
+		};
+	});
+</script>
+</html>
